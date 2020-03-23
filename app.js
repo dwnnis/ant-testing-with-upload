@@ -35,7 +35,8 @@ var counter = 1;
 
 // LOGIN STATUS TEST
 const displayUserId = document.getElementById("displayUserId");
-const appUserID = localStorage.getItem("UserID"); // appUserID
+const realAppUserID = localStorage.getItem("UserID"); // appUserID
+const appUserID = realAppUserID.substring(0,realAppUserID.length-6);
 if (appUserID != null) {
   displayUserId.innerHTML = appUserID;
 } else {
@@ -229,8 +230,8 @@ window.onload = function() {
 
       // console.log(object.result.timestamp); // display the deleted file time & timestamp.
       // Upload delete message to Server
-      console.log(appUserID+"-"+object.result.time+"-delete-"+videoID+"-"+object.result.timestamp+"-"+dateFormatting());
-      // uploadDeleteMsgToCloud(appUserID+"-"+object.result.time+"-delete-"+videoID+"-"+object.result.timestamp+"-"+dateFormatting());
+      console.log(realAppUserID+"-"+object.result.time+"-delete-"+videoID+"-"+object.result.timestamp+"-"+dateFormatting());
+      // uploadDeleteMsgToCloud(realAppUserID+"-"+object.result.time+"-delete-"+videoID+"-"+object.result.timestamp+"-"+dateFormatting());
     }
     if(!table.firstChild) {
       let empty_tr = document.createElement('tr');
@@ -296,8 +297,8 @@ window.onload = function() {
     blobToSave = blob;
     addData(event);
     // Upload files to Server
-    console.log(appUserID+"-"+recordTime+"-upload-"+videoID+"-"+currentTimestamp+"-"+dateFormatting());
-    // uploadFileToCloud(blob, appUserID+"-"+recordTime+"-upload-"+videoID+"-"+currentTimestamp+"-"+dateFormatting()); // also save the videoId
+    console.log(realAppUserID+"-"+recordTime+"-upload-"+videoID+"-"+currentTimestamp+"-"+dateFormatting());
+    // uploadFileToCloud(blob, realAppUserID+"-"+recordTime+"-upload-"+videoID+"-"+currentTimestamp+"-"+dateFormatting()); // also save the videoId
 
     // After recording done, resume playing video
     player.playVideo();
@@ -367,7 +368,8 @@ function onYouTubeIframeAPIReady() {
     width: '100%',
     videoId: videoID,
     events: {
-      'onReady': onPlayerReady
+      'onReady': onPlayerReady,
+      'onError': onPlayerError
     },
     playerVars: {
       playsinline: 1
@@ -378,6 +380,13 @@ function onYouTubeIframeAPIReady() {
 //    The API will call this function when the video player is ready.
 function onPlayerReady(event) {
   event.target.playVideo();
+}
+// if video loading error, go back to the last onPlayerStateChange
+function onPlayerError() {
+  console.log("a");
+
+  window.location.href = "index.html";
+  alert("Please check the video link again.");
 }
 
 //    The API calls this function when the player's state changes.

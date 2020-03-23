@@ -26,7 +26,7 @@ window.onload = function() {
 function basicLogin() {
   // TODO: add check null;
   if (enteredID.value != "") {
-    localStorage.setItem("UserID", enteredID.value);
+    localStorage.setItem("UserID", enteredID.value + '_' + Math.random().toString(36).substr(2, 5));
   } else {
     alert("Please Enter an ID.");
   }
@@ -37,7 +37,8 @@ function basicLogout() {
 }
 
 function displayVideoSelection() {
-  displayID.innerHTML = localStorage.getItem("UserID");
+  var displayUserID = localStorage.getItem("UserID");
+  displayID.innerHTML = displayUserID.substring(0, displayUserID.length-6)
   videoArea.style.display = "block";
   loginArea.style.display = "none";
 }
@@ -52,13 +53,16 @@ function displayLogin() {
 //
 function start() {
   try {
-    ytlink = document.getElementById("videoInput").value;
-    videoId = ytlink.substring(ytlink.length - 11);
-    // console.log(videoId);
-
-    window.location.href = "./app.html?https://you.tube/" + videoId;
-    videoId = "";
-    ytlink = "";
+    if(ytlink == ""){
+      ytlink = document.getElementById("videoInput").value;
+      videoId = ytlink.substring(ytlink.length - 11);
+      // console.log(videoId);
+      window.location.href = "./app.html?https://you.tube/" + videoId;
+      videoId = "";
+      ytlink = "";
+    } else {
+      alert("Please enter a valid video link.");
+    }
   } catch(err) {
     console.log("error loading video. check link.");
   }
