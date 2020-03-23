@@ -33,12 +33,32 @@ var currentTimestamp;
 var recordTime;
 var counter = 1;
 
+// LOGIN STATUS TEST
+const displayUserId = document.getElementById("displayUserId");
+const appUserID = localStorage.getItem("UserID"); // appUserID
+if (appUserID != null) {
+  displayUserId.innerHTML = appUserID;
+} else {
+  alert("Please enter an User ID!");
+  window.location.href = "index.html";
+}
+
+// LOADING VIDEO
+// Manual Format: (format: https://dwnnis.github.io/av-note-taking-tool/?https://youtu.be/zCrM5jIqQD4)
+var rawURL = window.location.href.toString();
+var pieces = rawURL.split(/[\s/]+/);
+var videoID = pieces[pieces.length-1];
+videoId.innerHTML = videoID;
+
+
+
 // IndexedDB loading
 window.onload = function() {
   recordButton.addEventListener("click", startRecording);
   stopButton.addEventListener("click", stopRecording);
   unmuteButton.addEventListener("click", unmute);
-  downloadButton.addEventListener("click", testDownloadFunction);
+  // downloadButton.addEventListener("click", testDownloadFunction);
+
 
   let request = window.indexedDB.open('ant_db', 1);
 
@@ -57,6 +77,7 @@ window.onload = function() {
     let objectStore = db.createObjectStore('ant_os', { keyPath: 'id', autoIncrement:true });
 
     // Define what data items the objectStore will contain
+    objectStore.createIndex('videoID', 'videoID', { unique: false });
     objectStore.createIndex('timestamp', 'timestamp', { unique: false });
     objectStore.createIndex('audio', 'audio', { unique: false });
     objectStore.createIndex('time', 'time', { unique: false });
@@ -66,7 +87,7 @@ window.onload = function() {
   function addData(e) {
     console.log("add Data to DB");
     e.preventDefault();
-    let newItem = { timestamp: currentTimestamp, audio: blobToSave, time: recordTime };
+    let newItem = { videoID: videoID, timestamp: currentTimestamp, audio: blobToSave, time: recordTime };
     let transaction = db.transaction(['ant_os'], 'readwrite');
     let objectStore = transaction.objectStore('ant_os');
     let request = objectStore.add(newItem);
@@ -96,89 +117,91 @@ window.onload = function() {
     objectStore.openCursor().onsuccess = function(e) {
       let cursor = e.target.result;
       if(cursor) {
-        // Create a table item
-        var tr = document.createElement('tr');
-        var th = document.createElement('th');
-        var btn_td = document.createElement('td');
-        var au_td = document.createElement('td');
-        var time_td = document.createElement('td');
+        // switch to display only the notes related to current video (based on video ID)
+        if(cursor.value.videoID == videoID) {
+          // Create a table item
+          var tr = document.createElement('tr');
+          var th = document.createElement('th');
+          var btn_td = document.createElement('td');
+          var au_td = document.createElement('td');
+          var time_td = document.createElement('td');
 
-        // Create elements
-        var au = document.createElement('audio');
-        var navBtn = document.createElement('button')
-        var link = document.createElement('a');
+          // Create elements
+          var au = document.createElement('audio');
+          var navBtn = document.createElement('button')
+          var link = document.createElement('a');
 
-        var playBtn = document.createElement("button"); // Player call
-        var isPlaying = false;
-        var playTimestamp;
+          var playBtn = document.createElement("button"); // Player call
+          var isPlaying = false;
+          var playTimestamp;
 
-        tr.appendChild(th);
-        tr.appendChild(btn_td);
-        tr.appendChild(au_td);
-        tr.appendChild(time_td);
-        table.appendChild(tr);
+          tr.appendChild(th);
+          tr.appendChild(btn_td);
+          tr.appendChild(au_td);
+          tr.appendChild(time_td);
+          table.appendChild(tr);
 
-        // Append all items to table
-        th.scope = "row";
-        th.innerHTML = counter;
-        counter += 1;
-        btn_td.appendChild(navBtn);
-        // au_td.appendChild(au);
-        au_td.appendChild(playBtn);
-        time_td.appendChild(link);
+          // Append all items to table
+          th.scope = "row";
+          th.innerHTML = counter;
+          counter += 1;
+          btn_td.appendChild(navBtn);
+          // au_td.appendChild(au);
+          au_td.appendChild(playBtn);
+          time_td.appendChild(link);
 
-        // Set Content for each elements
-        var url = URL.createObjectURL(cursor.value.audio);
-        au.controls = false;
-        // au.setAttribute("style", "width: 260px; height: 40px;")
-        au.src = url;
+          // Set Content for each elements
+          var url = URL.createObjectURL(cursor.value.audio);
+          au.controls = false;
+          // au.setAttribute("style", "width: 260px; height: 40px;")
+          au.src = url;
 
-        au.onplaying = function() {
-          playBtn.textContent = "Stop";
-	        isPlaying = true;
-        };
-        au.onpause = function() {
-          playBtn.textContent = "Play";
-          isPlaying = false;
-        };
-        playBtn.addEventListener("click", playAudio);
-        playBtn.setAttribute("class", "btn btn-primary");
-        playBtn.innerHTML = "Play";
-        function playAudio() {
-          if (isPlaying){
-            au.pause();
-            au.currentTime = 0;
-          } else {
-            au.play();
+          au.onplaying = function() {
+            playBtn.textContent = "Stop";
+  	        isPlaying = true;
+          };
+          au.onpause = function() {
+            playBtn.textContent = "Play";
+            isPlaying = false;
+          };
+          playBtn.addEventListener("click", playAudio);
+          playBtn.setAttribute("class", "btn btn-primary");
+          playBtn.innerHTML = "Play";
+          function playAudio() {
+            if (isPlaying){
+              au.pause();
+              au.currentTime = 0;
+            } else {
+              au.play();
+            }
           }
+
+          navBtn.innerHTML = timeFormatting(cursor.value.timestamp); // change timestamp
+          navBtn.setAttribute("class", "btn btn-primary");
+          playTimestamp = cursor.value.timestamp;
+          // navBtn.setAttribute("onclick", "navigateVideoAtTime("+cursor.value.timestamp.toString()+");"+au.play()+";");
+
+          navBtn.addEventListener("click", function(event) {
+            navigateVideoAtTime(playTimestamp);
+            console.log(playTimestamp);
+            au.play();
+          });
+          // au.play();
+
+          var filename = cursor.value.time;
+          link.href = url;
+        	link.download = filename+".wav";
+        	link.innerHTML = filename;
+
+          // Set id of the data item inside the table
+          tr.setAttribute('data-note-id', cursor.value.id);
+
+          // Create a delete button for the item
+          const deleteBtn = document.createElement('button');
+          tr.appendChild(deleteBtn);
+          deleteBtn.textContent = 'Delete';
+          deleteBtn.onclick = deleteItem;
         }
-
-        navBtn.innerHTML = timeFormatting(cursor.value.timestamp); // change timestamp
-        navBtn.setAttribute("class", "btn btn-primary");
-        playTimestamp = cursor.value.timestamp;
-        // navBtn.setAttribute("onclick", "navigateVideoAtTime("+cursor.value.timestamp.toString()+");"+au.play()+";");
-
-        navBtn.addEventListener("click", function(event) {
-          navigateVideoAtTime(playTimestamp);
-          console.log(playTimestamp);
-          au.play();
-        });
-        // au.play();
-
-        var filename = cursor.value.time;
-        link.href = url;
-      	link.download = filename+".wav";
-      	link.innerHTML = filename;
-
-        // Set id of the data item inside the table
-        tr.setAttribute('data-note-id', cursor.value.id);
-
-        // Create a delete button for the item
-        const deleteBtn = document.createElement('button');
-        tr.appendChild(deleteBtn);
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.onclick = deleteItem;
-
         // Iterate to the next item in the cursor
         cursor.continue();
       } else {
@@ -198,10 +221,17 @@ window.onload = function() {
     let noteId = Number(e.target.parentNode.getAttribute('data-note-id'));
     let transaction = db.transaction(['ant_os'], 'readwrite');
     let objectStore = transaction.objectStore('ant_os');
+    let object = objectStore.get(noteId);
     let request = objectStore.delete(noteId);
     transaction.oncomplete = function() {
       e.target.parentNode.parentNode.removeChild(e.target.parentNode);
       console.log('Note ' + noteId + ' deleted.');
+
+      // console.log(object.result.timestamp); // display the deleted file time & timestamp.
+      // Upload delete message to Server
+      // console.log(appUserID+"-"+object.result.time+"-delete-"+videoID+"-"+object.result.timestamp+"-"+dateFormatting());
+      uploadDeleteMsgToCloud(appUserID+"-"+object.result.time+"-delete-"+videoID+"-"+object.result.timestamp+"-"+dateFormatting());
+      // uploadDeleteMsgToCloud(videoID, object.result.timestamp, object.result.time);
     }
     if(!table.firstChild) {
       let empty_tr = document.createElement('tr');
@@ -261,11 +291,14 @@ window.onload = function() {
   }
 
   function saveBlob(blob) {
-      console.log("saving blob");
-      blobToSave = blob;
-      addData(event);
-      //    after recording done, resume playing video
-      player.playVideo();
+    console.log("saving blob");
+    blobToSave = blob;
+    addData(event);
+    // Upload files to Server
+    // console.log(appUserID+"-"+recordTime+"-upload-"+videoID+"-"+currentTimestamp+"-"+dateFormatting());
+    uploadFileToCloud(blob, appUserID+"-"+recordTime+"-upload-"+videoID+"-"+currentTimestamp+"-"+dateFormatting()); // also save the videoId
+    // after recording done, resume playing video
+    player.playVideo();
   }
 
   function timeFormatting(rawSeconds) {
@@ -312,13 +345,6 @@ window.onload = function() {
   }
 
 }
-
-
-//    LOADING VIDEO MANUALLY
-//    (format: https://dwnnis.github.io/av-note-taking-tool/?https://youtu.be/zCrM5jIqQD4)
-var rawURL = window.location.href.toString();
-var pieces = rawURL.split(/[\s/]+/);
-var videoID = pieces[pieces.length-1];
 
 //
 //    Official Example of YouTube iframe API

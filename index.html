@@ -17,43 +17,41 @@
 </div> -->
 <!-- <p class="h1">Audio Note-taking Tool</p> -->
 <p><br></p>
-<div class="col-sm-6 second-column">
-<p><strong>Step 1:</strong> Go to Youtube, copy link of a Video to watch.</p>
+<!-- Video Selection View -->
+<div id="video-selection-area" class="col-sm-6 second-column">
+  <p>Hi <a id="UserID">{undefined name}</a>!
+  <form><button class="btn btn-primary" onclick="basicLogout()">Log Out</button></form>
+  <p><strong>Step 1:</strong> Go to Youtube, copy link of a Video to watch.</p>
 
-<!-- <button type="submit" class="btn btn-danger" onclick="window.location.href = 'https://www.youtube.com'"> Go to Youtube</button>   -->
-<a class="btn btn-danger" href="https://www.youtube.com" target="_blank">Go to Youtube</a>
+  <!-- <button type="submit" class="btn btn-danger" onclick="window.location.href = 'https://www.youtube.com'"> Go to Youtube</button>   -->
+  <a class="btn btn-danger" href="https://www.youtube.com" target="_blank">Go to Youtube</a>
 
-<p></p>
+  <p></p>
 
-<p><strong>Step 2:</strong> Enter the Link below</p>
-<form>
-  <div class="form-group">
-    <!-- <label for="exampleFormControlInput1">Please Enter the Link to the YouTube Video</label> -->
-    <input type="email" class="form-control" id="videoInput" placeholder="e.g. https://www.youtube.com/watch?v=videoidhere">
-  </div>
-</form>
+  <p><strong>Step 2:</strong> Enter the Link below</p>
+  <form>
+    <div class="form-group">
+      <!-- <label for="exampleFormControlInput1">Please Enter the Link to the YouTube Video</label> -->
+      <input type="email" class="form-control" id="videoInput" placeholder="e.g. https://www.youtube.com/watch?v=videoidhere">
+    </div>
+  </form>
 
-<p><strong>Step 3:</strong> Click the Button To Start</p>
-<button type="submit" class="btn btn-primary" onclick="start()">Start Watch & Take Note</button>
+  <p><strong>Step 3:</strong> Click the Button To Start</p>
+  <button type="submit" class="btn btn-primary" onclick="start()">Start Watch & Take Note</button>
 </div>
-<script>
-var videoId = "";
-var ytlink = "";
-function start() {
-  try {
-    ytlink = document.getElementById("videoInput").value;
-    videoId = ytlink.substring(ytlink.length - 11);
-    console.log(videoId);
 
-    window.location.href = "./app.html?https://you.tube/" + videoId;
-    videoId = "";
-    ytlink = "";
-  } catch(err) {
-    console.log("error loading video. check link.");
-  }
-}
-
-</script>
+<!-- Login View -->
+<div id="login-area" class="col-sm-6 second-column">
+  <p>Please enter an <strong>UserID</strong> below</p>
+  <form>
+    <div class="form-group">
+      <!-- <label for="exampleFormControlInput1">Please Enter the Link to the YouTube Video</label> -->
+      <input class="form-control" id="IDInput" placeholder="e.g. <yourname>-<number>"><br>
+      <button class="btn btn-primary" onclick="basicLogin()">Confirm UserID</button>
+    </div>
+  </form>
+</div>
+<script type="text/javascript" src="index.js"></script>
 
 
 <!-- <h1>Audio Note-taking</h1>
