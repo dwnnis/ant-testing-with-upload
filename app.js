@@ -229,9 +229,8 @@ window.onload = function() {
 
       // console.log(object.result.timestamp); // display the deleted file time & timestamp.
       // Upload delete message to Server
-      // console.log(appUserID+"-"+object.result.time+"-delete-"+videoID+"-"+object.result.timestamp+"-"+dateFormatting());
-      uploadDeleteMsgToCloud(appUserID+"-"+object.result.time+"-delete-"+videoID+"-"+object.result.timestamp+"-"+dateFormatting());
-      // uploadDeleteMsgToCloud(videoID, object.result.timestamp, object.result.time);
+      console.log(appUserID+"-"+object.result.time+"-delete-"+videoID+"-"+object.result.timestamp+"-"+dateFormatting());
+      // uploadDeleteMsgToCloud(appUserID+"-"+object.result.time+"-delete-"+videoID+"-"+object.result.timestamp+"-"+dateFormatting());
     }
     if(!table.firstChild) {
       let empty_tr = document.createElement('tr');
@@ -248,6 +247,7 @@ window.onload = function() {
     // recordTime = new Date().toLocaleString("en-US", {timeZone: "America/Chicago"});
     recordTime = dateFormatting();
     player.pauseVideo();
+    player.mute();
   	console.log("recordButton clicked");
 
     recordButton.disabled = true;
@@ -295,9 +295,10 @@ window.onload = function() {
     blobToSave = blob;
     addData(event);
     // Upload files to Server
-    // console.log(appUserID+"-"+recordTime+"-upload-"+videoID+"-"+currentTimestamp+"-"+dateFormatting());
-    uploadFileToCloud(blob, appUserID+"-"+recordTime+"-upload-"+videoID+"-"+currentTimestamp+"-"+dateFormatting()); // also save the videoId
-    // after recording done, resume playing video
+    console.log(appUserID+"-"+recordTime+"-upload-"+videoID+"-"+currentTimestamp+"-"+dateFormatting());
+    // uploadFileToCloud(blob, appUserID+"-"+recordTime+"-upload-"+videoID+"-"+currentTimestamp+"-"+dateFormatting()); // also save the videoId
+
+    // After recording done, resume playing video
     player.playVideo();
   }
 
