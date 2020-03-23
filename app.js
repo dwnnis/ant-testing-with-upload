@@ -248,6 +248,7 @@ window.onload = function() {
     recordTime = dateFormatting();
     player.pauseVideo();
     player.mute();
+    unmuteButtonImg.src = "images/icons8-no-audio-100.png";
   	console.log("recordButton clicked");
 
     recordButton.disabled = true;
