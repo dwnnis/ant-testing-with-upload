@@ -55,8 +55,9 @@ videoId.innerHTML = videoID;
 
 // IndexedDB loading
 window.onload = function() {
-  recordButton.addEventListener("click", startRecording);
-  stopButton.addEventListener("click", stopRecording);
+  recordButton.addEventListener("pointerdown", startRecording);
+  recordButton.addEventListener("pointerup", stopRecording);
+  // stopButton.addEventListener("click", stopRecording);
   unmuteButton.addEventListener("click", unmute);
   // downloadButton.addEventListener("click", testDownloadFunction);
 
@@ -85,6 +86,7 @@ window.onload = function() {
 
     console.log('Database setup complete');
   }
+
   function addData(e) {
     console.log("add Data to DB");
     e.preventDefault();
@@ -243,53 +245,57 @@ window.onload = function() {
   }
   // Recording function
   var constraints = { audio: true, video:false };
-  function startRecording() {
-    currentTimestamp = player.getCurrentTime();
-    // recordTime = new Date().toLocaleString("en-US", {timeZone: "America/Chicago"});
-    recordTime = dateFormatting();
-    player.pauseVideo();
-    player.mute();
-    unmuteButtonImg.src = "images/icons8-no-audio-100.png";
-  	console.log("recordButton clicked");
+  function startRecording(event) {
+    if (event) {
+      currentTimestamp = player.getCurrentTime();
+      // recordTime = new Date().toLocaleString("en-US", {timeZone: "America/Chicago"});
+      recordTime = dateFormatting();
+      player.pauseVideo();
+      player.mute();
+      unmuteButtonImg.src = "images/icons8-no-audio-100.png";
+    	console.log("recordButton clicked");
 
-    recordButton.disabled = true;
-  	stopButton.disabled = false;
+      // recordButton.disabled = true;
+    	// stopButton.disabled = false;
 
-    navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-      console.log("getUserMedia() success, stream created, initializing Recorder.js ...");
+      navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+        console.log("getUserMedia() success, stream created, initializing Recorder.js ...");
 
-      audioContext = new AudioContext();
-      gumStream = stream;
-      input = audioContext.createMediaStreamSource(stream);
+        audioContext = new AudioContext();
+        gumStream = stream;
+        input = audioContext.createMediaStreamSource(stream);
 
-      rec = new Recorder(input,{numChannels:1});
-      rec.record()
+        rec = new Recorder(input,{numChannels:1});
+        rec.record()
 
-      console.log("Recording started");
-      timeLabelDisplay();
+        console.log("Recording started");
+        timeLabelDisplay();
 
-    }).catch(function(err) {
-        //enable the record button if getUserMedia() fails
-        console.log("failed start recording");
-        console.log(err);
-        recordButton.disabled = false;
-        stopButton.disabled = true;
-    });
+      }).catch(function(err) {
+          //enable the record button if getUserMedia() fails
+          console.log("failed start recording");
+          console.log(err);
+          // recordButton.disabled = false;
+          // stopButton.disabled = true;
+      });
+    }
   }
 
-  function stopRecording() {
-  	console.log("stopButton clicked");
-    timeLabelDisplay();
+  function stopRecording(event) {
+    if (event) {
+    	console.log("stopButton clicked");
+      timeLabelDisplay();
 
-  	//disable the stop button, enable the record too allow for new recordings
-  	stopButton.disabled = true;
-  	recordButton.disabled = false;
+    	//disable the stop button, enable the record too allow for new recordings
+    	// stopButton.disabled = true;
+    	// recordButton.disabled = false;
 
-  	rec.stop();
-  	gumStream.getAudioTracks()[0].stop();
+    	rec.stop();
+    	gumStream.getAudioTracks()[0].stop();
 
-  	// rec.exportWAV(createDownloadLink);
-    rec.exportWAV(saveBlob);
+    	// rec.exportWAV(createDownloadLink);
+      rec.exportWAV(saveBlob);
+    }
   }
 
   function saveBlob(blob) {
